@@ -1,0 +1,209 @@
+<Border xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:f="clr-namespace:FluentHud;assembly=FluentHud"
+        x:Name="Root" BorderThickness="1" BorderBrush="#1FFFFFFF" CornerRadius="8"
+        TextElement.Foreground="#FFFFFFFF" TextElement.FontFamily="Segoe UI Variable Text, Segoe UI" TextElement.FontSize="12"
+        Typography.NumeralAlignment="Tabular" UseLayoutRounding="True" SnapsToDevicePixels="True">
+  <Border.Resources>
+    <!-- Windows 11 dark-theme tokens -->
+    <SolidColorBrush x:Key="TextSecondary" Color="#C5FFFFFF"/>
+    <SolidColorBrush x:Key="TextTertiary" Color="#8AFFFFFF"/>
+    <SolidColorBrush x:Key="CardFill" Color="#0FFFFFFF"/>
+    <SolidColorBrush x:Key="CardStroke" Color="#14FFFFFF"/>
+    <FontFamily x:Key="Display">Segoe UI Variable Display, Segoe UI</FontFamily>
+
+    <Style x:Key="Card" TargetType="Border">
+      <Setter Property="Background" Value="{StaticResource CardFill}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource CardStroke}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="4"/>
+      <Setter Property="Padding" Value="12,10,12,12"/>
+      <Setter Property="Margin" Value="0,0,0,4"/>
+    </Style>
+    <!-- Windows' own icon font. Every glyph used here is in both Segoe Fluent Icons (Windows 11)
+         and Segoe MDL2 Assets (Windows 10), so the fallback never draws a box. -->
+    <Style x:Key="Icon" TargetType="TextBlock">
+      <Setter Property="FontFamily" Value="Segoe Fluent Icons, Segoe MDL2 Assets"/>
+      <Setter Property="FontSize" Value="16"/>
+      <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style x:Key="CardTitle" TargetType="TextBlock">
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="Margin" Value="8,0,0,0"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style x:Key="Label" TargetType="TextBlock">
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="Foreground" Value="{StaticResource TextTertiary}"/>
+      <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+    <!-- Beside a card title: why the device is held back ("thermal limit"), or "asleep" / "idle". -->
+    <Style x:Key="StateText" TargetType="TextBlock" BasedOn="{StaticResource Label}">
+      <Setter Property="Margin" Value="6,1,0,0"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style x:Key="Stat" TargetType="TextBlock">
+      <Setter Property="FontFamily" Value="{StaticResource Display}"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="FontSize" Value="14"/>
+      <Setter Property="Margin" Value="0,1,0,0"/>
+      <Setter Property="Text" Value="—"/>
+    </Style>
+    <Style x:Key="RingText" TargetType="TextBlock">
+      <Setter Property="FontFamily" Value="{StaticResource Display}"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="FontSize" Value="14"/>
+      <Setter Property="HorizontalAlignment" Value="Center"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style x:Key="CLabel" TargetType="TextBlock">
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+      <Setter Property="Margin" Value="0,0,8,0"/>
+    </Style>
+    <Style x:Key="CValue" TargetType="TextBlock">
+      <Setter Property="FontFamily" Value="{StaticResource Display}"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="MinWidth" Value="40"/>
+      <Setter Property="Margin" Value="0,0,4,0"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+      <Setter Property="Text" Value="—"/>
+    </Style>
+    <Style x:Key="CSep" TargetType="Border">
+      <Setter Property="Width" Value="1"/>
+      <Setter Property="Height" Value="14"/>
+      <Setter Property="Margin" Value="6,0,14,0"/>
+      <Setter Property="Background" Value="#1FFFFFFF"/>
+    </Style>
+  </Border.Resources>
+
+  <Grid>
+    <!-- ── Full layout ─────────────────────────────── -->
+    <StackPanel x:Name="FullPanel" Width="296" Margin="8,8,8,4">
+      <!-- 13 = a card's 1 px border + 12 px padding, so the header lines up with the card content. -->
+      <Grid Margin="13,2,13,10">
+        <StackPanel Orientation="Horizontal">
+          <TextBlock Style="{StaticResource Icon}" Text="&#xE9D9;"/>
+          <TextBlock Text="Performance" Margin="8,0,0,0" FontWeight="SemiBold" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+          <TextBlock x:Name="Clock" VerticalAlignment="Center" Foreground="{StaticResource TextTertiary}"/>
+          <!-- Only shown while unlocked; when locked the overlay is click-through. -->
+          <Border x:Name="SettingsButton" Visibility="Collapsed" Width="24" Height="24" Margin="8,-4,-4,-4"
+                  Background="#0FFFFFFF" CornerRadius="4" Cursor="Hand" ToolTip="Settings">
+            <TextBlock Text="&#xE713;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="13"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource TextSecondary}"/>
+          </Border>
+        </StackPanel>
+      </Grid>
+
+      <Border x:Name="EditHint" Visibility="Collapsed" Padding="13,6" Margin="0,0,0,4" CornerRadius="4" Background="{DynamicResource AccentSubtleBrush}">
+        <!-- Two deliberate lines: at this width a single sentence wraps and strands "to lock" on its own. -->
+        <TextBlock FontSize="11" TextWrapping="Wrap">Drag to move  ·  Right-click for settings<LineBreak/>Press Ctrl+Alt+M to lock it in place</TextBlock>
+      </Border>
+
+      <!-- CPU -->
+      <Border Style="{StaticResource Card}">
+        <StackPanel>
+          <Grid>
+            <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+            <StackPanel VerticalAlignment="Center" Margin="0,0,10,0">
+              <!-- The status sits by the short title so a long device name can never push it out of view. -->
+              <DockPanel>
+                <TextBlock Style="{StaticResource Icon}" Text="&#xE950;"/>
+                <TextBlock Text="CPU" Style="{StaticResource CardTitle}"/>
+                <TextBlock x:Name="CpuState" Style="{StaticResource StateText}"/>
+              </DockPanel>
+              <TextBlock x:Name="CpuName" Style="{StaticResource Label}" Margin="0,4,0,0"/>
+            </StackPanel>
+            <Grid Grid.Column="1" Width="52" Height="52">
+              <f:RingGauge x:Name="CpuRing"/>
+              <TextBlock Style="{StaticResource RingText}"><Run x:Name="CpuLoad" Text="0"/><Run Text="%" FontSize="10" Foreground="{StaticResource TextSecondary}"/></TextBlock>
+            </Grid>
+          </Grid>
+          <f:Sparkline x:Name="CpuSpark" Height="34" Margin="0,10,0,0"/>
+          <UniformGrid Columns="3" Margin="0,10,0,0">
+            <StackPanel><TextBlock Text="Fastest core" Style="{StaticResource Label}"/><TextBlock x:Name="CpuClock" Style="{StaticResource Stat}"/></StackPanel>
+            <StackPanel><TextBlock Text="Temp" Style="{StaticResource Label}"/><TextBlock x:Name="CpuTemp" Style="{StaticResource Stat}"/></StackPanel>
+            <StackPanel><TextBlock Text="Power" Style="{StaticResource Label}"/><TextBlock x:Name="CpuPower" Style="{StaticResource Stat}"/></StackPanel>
+          </UniformGrid>
+          <Grid Margin="0,12,0,0">
+            <TextBlock Text="Threads" Style="{StaticResource Label}"/>
+            <TextBlock HorizontalAlignment="Right" FontSize="11" Foreground="{StaticResource TextSecondary}"><Run Text="Busiest "/><Run x:Name="CpuPeak" Text="—"/></TextBlock>
+          </Grid>
+          <f:CoreStrip x:Name="CpuCores" Height="16" Margin="0,6,0,0"/>
+        </StackPanel>
+      </Border>
+
+      <!-- GPU (hidden on machines with no GPU to read, such as some VMs) -->
+      <Border x:Name="GpuCard" Style="{StaticResource Card}">
+        <StackPanel>
+          <Grid>
+            <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+            <StackPanel VerticalAlignment="Center" Margin="0,0,10,0">
+              <DockPanel>
+                <TextBlock Style="{StaticResource Icon}" Text="&#xE7F4;"/>
+                <TextBlock Text="GPU" Style="{StaticResource CardTitle}"/>
+                <TextBlock x:Name="GpuState" Style="{StaticResource StateText}"/>
+              </DockPanel>
+              <TextBlock x:Name="GpuName" Style="{StaticResource Label}" Margin="0,4,0,0"/>
+            </StackPanel>
+            <Grid Grid.Column="1" Width="52" Height="52">
+              <f:RingGauge x:Name="GpuRing"/>
+              <TextBlock Style="{StaticResource RingText}"><Run x:Name="GpuLoad" Text="0"/><Run Text="%" FontSize="10" Foreground="{StaticResource TextSecondary}"/></TextBlock>
+            </Grid>
+          </Grid>
+          <f:Sparkline x:Name="GpuSpark" Height="34" Margin="0,10,0,0"/>
+          <!-- Hidden until one of these has had a value: integrated GPUs report none of them. -->
+          <UniformGrid x:Name="GpuStats" Columns="3" Margin="0,10,0,0" Visibility="Collapsed">
+            <StackPanel><TextBlock Text="Temp" Style="{StaticResource Label}"/><TextBlock x:Name="GpuTemp" Style="{StaticResource Stat}"/></StackPanel>
+            <StackPanel><TextBlock Text="Power" Style="{StaticResource Label}"/><TextBlock x:Name="GpuPower" Style="{StaticResource Stat}"/></StackPanel>
+            <StackPanel><TextBlock Text="Clock" Style="{StaticResource Label}"/><TextBlock x:Name="GpuClock" Style="{StaticResource Stat}"/></StackPanel>
+          </UniformGrid>
+          <Grid Margin="0,12,0,0">
+            <TextBlock x:Name="VramLabel" Text="VRAM" Style="{StaticResource Label}"/>
+            <TextBlock x:Name="VramText" HorizontalAlignment="Right" FontSize="11" Foreground="{StaticResource TextSecondary}"/>
+          </Grid>
+          <f:LinearBar x:Name="VramBar" Height="4" Margin="0,6,0,0"/>
+        </StackPanel>
+      </Border>
+
+      <!-- Memory -->
+      <Border Style="{StaticResource Card}">
+        <StackPanel>
+          <Grid>
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Style="{StaticResource Icon}" Text="&#xE964;"/>
+              <TextBlock Text="Memory" Style="{StaticResource CardTitle}"/>
+            </StackPanel>
+            <TextBlock x:Name="RamText" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="11" Foreground="{StaticResource TextSecondary}"/>
+          </Grid>
+          <f:LinearBar x:Name="RamBar" Height="4" Margin="0,10,0,0"/>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+
+    <!-- ── Compact strip ───────────────────────────── -->
+    <StackPanel x:Name="CompactPanel" Orientation="Horizontal" Margin="14,8,10,8" Visibility="Collapsed">
+      <TextBlock Text="CPU" Style="{StaticResource CLabel}"/>
+      <TextBlock x:Name="CCpu" Style="{StaticResource CValue}"/>
+      <TextBlock x:Name="CCpuTemp" Style="{StaticResource CValue}"/>
+      <TextBlock x:Name="CCpuPower" Style="{StaticResource CValue}" MinWidth="44"/>
+      <Border Style="{StaticResource CSep}"/>
+      <StackPanel x:Name="CompactGpu" Orientation="Horizontal">
+        <TextBlock Text="GPU" Style="{StaticResource CLabel}"/>
+        <TextBlock x:Name="CGpu" Style="{StaticResource CValue}"/>
+        <TextBlock x:Name="CGpuTemp" Style="{StaticResource CValue}"/>
+        <TextBlock x:Name="CGpuPower" Style="{StaticResource CValue}" MinWidth="44"/>
+        <Border Style="{StaticResource CSep}"/>
+      </StackPanel>
+      <TextBlock Text="RAM" Style="{StaticResource CLabel}"/>
+      <TextBlock x:Name="CRam" Style="{StaticResource CValue}"/>
+    </StackPanel>
+  </Grid>
+</Border>

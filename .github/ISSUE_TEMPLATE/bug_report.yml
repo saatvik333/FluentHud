@@ -1,0 +1,36 @@
+name: Bug report
+description: Something doesn't work, or a reading looks wrong.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you saw, and what you expected instead. For a wrong reading, include what another tool showed at the same time.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Start a game in borderless fullscreen
+        2. ...
+  - type: textarea
+    id: probe
+    attributes:
+      label: Diagnostics report
+      # A folded block: backslashes are literal here, unlike in a double-quoted YAML string.
+      description: >-
+        In PowerShell, in the folder that holds FluentHud.exe (the installed copy is in
+        %LOCALAPPDATA%\Programs\FluentHud), run `Start-Process .\FluentHud.exe '--probe report.txt' -Wait`,
+        then paste the contents of report.txt here.
+      render: text
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Fluent HUD version
+      description: Shown in the installer, or in Settings → Apps → Installed apps.
+      placeholder: "1.0.0"

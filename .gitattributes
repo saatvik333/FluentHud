@@ -1,0 +1,6 @@
+# Windows project: keep text files CRLF in the working tree, normalized in the repository.
+* text=auto eol=crlf
+
+*.png binary
+*.ico binary
+*.exe binary

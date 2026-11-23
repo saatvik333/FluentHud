@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    # Pinned so a change of the -latest image can't break the build unannounced.
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build
+        shell: pwsh
+        run: ./build.ps1
+
+      - name: Test
+        shell: pwsh
+        run: ./test.ps1
+
+      - name: Upload build
+        uses: actions/upload-artifact@v7
+        with:
+          name: FluentHud-${{ github.sha }}
+          path: |
+            bin/FluentHud.exe
+            dist/FluentHudSetup.exe
+          if-no-files-found: error

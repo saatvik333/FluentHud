@@ -1,0 +1,7 @@
+# Build output (build.ps1, test.ps1)
+bin/
+dist/
+obj/
+
+# Diagnostics reports people generate while testing
+report*.txt

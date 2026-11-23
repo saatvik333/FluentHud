@@ -1,0 +1,36 @@
+name: Hardware report
+description: Share how Fluent HUD reads your CPU and GPU, even if everything works.
+labels: [hardware]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Reports from AMD and Intel GPUs are especially useful. Thank you!
+  - type: textarea
+    id: probe
+    attributes:
+      label: Diagnostics report
+      # A folded block: backslashes are literal here, unlike in a double-quoted YAML string.
+      description: >-
+        In PowerShell, in the folder that holds FluentHud.exe (the installed copy is in
+        %LOCALAPPDATA%\Programs\FluentHud), run `Start-Process .\FluentHud.exe '--probe report.txt' -Wait`,
+        then paste the contents of report.txt here.
+      render: text
+    validations:
+      required: true
+  - type: dropdown
+    id: accuracy
+    attributes:
+      label: Do the readings match another tool?
+      options:
+        - "Yes, everything matches"
+        - "Mostly, see notes"
+        - "No, see notes"
+        - "I didn't compare"
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Which tool you compared with (Task Manager, AMD Software, nvidia-smi, HWiNFO...) and any differences.

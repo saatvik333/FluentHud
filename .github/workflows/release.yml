@@ -1,0 +1,51 @@
+# Publishes a GitHub release when a version tag is pushed:
+#   1. set $version in build.ps1 (e.g. 1.1.0) and commit
+#   2. git tag v1.1.0 && git push origin v1.1.0
+# Moving an existing tag to a fixed commit (git push --force origin v1.1.0) rebuilds and replaces
+# that release's files instead of failing.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build
+        shell: pwsh
+        run: ./build.ps1
+
+      - name: Test
+        shell: pwsh
+        run: ./test.ps1
+
+      - name: Check the tag matches the build version
+        shell: pwsh
+        run: |
+          $file = (Get-Item bin/FluentHud.exe).VersionInfo.FileVersion   # e.g. 1.1.0.0
+          $version = $file.Substring(0, $file.LastIndexOf('.'))
+          if ("v$version" -ne $env:GITHUB_REF_NAME) {
+            throw "Tag $env:GITHUB_REF_NAME doesn't match the version in build.ps1 ($version)."
+          }
+
+      - name: Publish
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = $env:GITHUB_REF_NAME
+          $assets = 'dist/FluentHudSetup.exe', 'bin/FluentHud.exe'
+          gh release view $tag *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $tag @assets --clobber
+          } else {
+            gh release create $tag @assets --title "Fluent HUD $($tag.TrimStart('v'))" --generate-notes
+          }
+          if ($LASTEXITCODE -ne 0) { throw "Publishing the release failed." }

@@ -1,0 +1,16 @@
+name: Feature request
+description: Suggest a reading, setting or improvement.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What would you like to do?
+      description: The problem or situation, more than the solution.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Idea
+      description: How it could work. Fluent HUD stays user-mode only (no kernel drivers or injection), so readings have to come from what Windows or the GPU drivers expose.
